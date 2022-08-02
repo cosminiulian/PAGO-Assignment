@@ -33,7 +33,6 @@ extension ContactsViewController: ViewControllerProtocol {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] usersResult in
                 if let users = usersResult {
-                    self.users = users
                     self.activeUsers = self.getActiveUsers(from: users)
                     self.tableView.reloadData()
                 }

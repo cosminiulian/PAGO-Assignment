@@ -29,7 +29,6 @@ final class ContactsViewController: UIViewController {
     let viewModel = ContactsViewModel()
     var postsSubscriber: AnyCancellable?
     var errorSubscriber: AnyCancellable?
-    var users: [User] = []
     var activeUsers: [User] = []
     
     override func viewDidLoad() {

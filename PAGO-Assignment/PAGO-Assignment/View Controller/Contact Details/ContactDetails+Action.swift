@@ -11,45 +11,50 @@ extension ContactDetailsViewController {
     
     @objc func saveButtonAction() {
         resetFieldsColor()
+        if validateFields() {
+            // Save contact with Core Data
+            let contact = CoreDataManager.shared.createContact(
+                lastName: lastNameField.textField.text!,
+                firstName: firstNameField.textField.text!,
+                phone: phoneField.textField.text!,
+                email: emailField.textField.text!)
+            
+            displayAlert(title: "Contact saved!",
+                         message: "\(contact.lastName!) was saved successfully using Core Data.") { [unowned self] _ in
+                self.navigationController?.popViewController(animated: true)
+            }
+        } else {
+            displayAlert(message: "Invalid data!")
+        }
+    }
+    
+    func validateFields() -> Bool {
+        var isValid = true
         // Last name validator
-        guard let lastName = lastNameField.textField.text,
-              lastName.isValid() else {
+        if let lastName = lastNameField.textField.text,
+           !lastName.isValid() {
             lastNameField.markFieldRed()
-            displayAlert(message: "Invalid last name!")
-            return
+            isValid = false
         }
         // First name validator
-        guard let firstName = firstNameField.textField.text,
-              firstName.isValid() else {
+        if let firstName = firstNameField.textField.text,
+           !firstName.isValid() {
             firstNameField.markFieldRed()
-            displayAlert(message: "Invalid first name!")
-            return
+            isValid = false
         }
         // Phone nr. validator
-        guard let phone = phoneField.textField.text,
-              (phone.isPhoneNrValid() || phone.isEmpty) else {
+        if let phone = phoneField.textField.text,
+           !(phone.isPhoneNrValid() || phone.isEmpty) {
             phoneField.markFieldRed()
-            displayAlert(message: "Invalid phone number!")
-            return
+            isValid = false
         }
         // Email validator
-        guard let email = emailField.textField.text,
-              (email.isEmailValid() || email.isEmpty) else {
-            phoneField.markFieldRed()
-            displayAlert(message: "Invalid email!")
-            return
+        if let email = emailField.textField.text,
+           !(email.isEmailValid() || email.isEmpty) {
+            emailField.markFieldRed()
+            isValid = false
         }
-        // Save contact with Core Data
-        let contact = CoreDataManager.shared.createContact(
-            lastName: lastName,
-            firstName: firstName,
-            phone: phone,
-            email: email)
-        
-        displayAlert(title: "Contact saved!",
-                     message: "\(contact.lastName!) was saved successfully using Core Data.") { [unowned self] _ in
-            self.navigationController?.popViewController(animated: true)
-        }
+        return isValid
     }
     
     // Observer Actions for Keyboard
@@ -58,15 +63,11 @@ extension ContactDetailsViewController {
         guard let userInfo = notification.userInfo else { return }
         guard let keyboardFrame = userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue else { return }
         
-        let keyboardRect = keyboardFrame.cgRectValue
-        var contentInset = scrollView.contentInset
-        contentInset.bottom = keyboardRect.size.height
-        scrollView.contentInset = contentInset
+        scrollView.contentInset.bottom = keyboardFrame.cgRectValue.size.height
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInset = UIEdgeInsets.zero
-        scrollView.contentInset = contentInset
+        scrollView.contentInset = UIEdgeInsets.zero
     }
     
 }
